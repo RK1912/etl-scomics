@@ -1,4 +1,5 @@
 terraform {
+
   required_version = ">= 1.0"
   
   required_providers {
@@ -7,7 +8,15 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  backend "s3" {
+    bucket         = "scomics-glue-tfstate"       # create this bucket once
+    key            = "etl-scomics/terraform.tfstate"
+    region         = "ap-south-1"
+    use_lockfile   =  true         # create a DynamoDB table with 'LockID' as primary key
+  }
 }
+
 
 provider "aws" {
   region = var.aws_region
