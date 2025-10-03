@@ -10,6 +10,8 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
+      - echo "installing dependencies.."
+      - yum install -y unzip 
       - echo "Installing Terraform..."
       - wget -q https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
       - unzip -q terraform_1.6.0_linux_amd64.zip
@@ -20,7 +22,7 @@ phases:
     commands:
       - echo "Validating Terraform..."
       - cd terraform
-      - terraform init -backend=false
+      - terraform init 
       - terraform validate
       - cd ..
 
