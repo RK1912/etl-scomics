@@ -1,0 +1,59 @@
+version: 0.2
+
+env:
+  variables:
+    ENVIRONMENT: "dev"
+    PROJECT_NAME: "etl-scomics"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing Terraform..."
+      - wget -q https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
+      - unzip -q terraform_1.6.0_linux_amd64.zip
+      - mv terraform /usr/local/bin/
+      - terraform --version
+
+  pre_build:
+    commands:
+      - echo "Validating Terraform..."
+      - cd terraform
+      - terraform init -backend=false
+      - terraform validate
+      - cd ..
+
+  build:
+    commands:
+      - echo "Deploying infrastructure..."
+      - cd terraform
+      - terraform init
+      - terraform apply -auto-approve
+      - SCRIPTS_BUCKET=$(terraform output -raw scripts_bucket)
+      - GLUE_JOB_NAME=$(terraform output -raw glue_job_name)
+      - cd ..
+      
+      - echo "Uploading scripts..."
+      - aws s3 cp glue_scripts/test_hello_world.py s3://$SCRIPTS_BUCKET/
+      
+      - echo "Testing job..."
+      - aws glue start-job-run --job-name $GLUE_JOB_NAME
+
+  post_build:
+    commands:
+      - echo "Build completed!"
+      - |
+        if [ $CODEBUILD_BUILD_SUCCEEDING -eq 1 ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi
+
+artifacts:
+  files:
+    - '**/*'
+
+cache:
+  paths:
+    - 'terraform/.terraform/**/*'
