@@ -15,7 +15,6 @@ phases:
   build:
     commands:
       - echo "Deploying infrastructure..."
-      - cd terraform
       - terraform apply -auto-approve || { echo "Terraform apply failed!"; exit 1; }
       - SCRIPTS_BUCKET=$(terraform output -raw scripts_bucket)
       - GLUE_JOB_NAME=$(terraform output -raw glue_job_name)
