@@ -13,7 +13,7 @@ terraform {
     bucket         = "scomics-glue-tfstate"       # create this bucket once
     key            = "etl-scomics/terraform.tfstate"
     region         = "ap-south-1"
-    use_lockfile   =  true         # create a DynamoDB table with 'LockID' as primary key
+    dynamodb_table = "terraform-locks"          # create a DynamoDB table with 'LockID' as primary key
   }
 }
 
