@@ -117,7 +117,7 @@ resource "aws_glue_job" "hello_world_job" {
 
   command {
     name            = "glueetl"
-    script_location = "s3://${aws_s3_bucket.scripts.bucket}/hello_world.py"
+    script_location = "s3://${aws_s3_bucket.scripts.bucket}/test_hello_world.py"
     python_version  = "3"
   }
 
