@@ -6,33 +6,17 @@ env:
     PROJECT_NAME: "etl-scomics"
 
 phases:
-  install:
-    runtime-versions:
-      python: 3.11
-    commands:
-      - echo "installing dependencies.."
-      - apt-get update && apt-get install -y unzip
-      - echo "Installing Terraform..."
-      - curl -LO https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
-      - ls -lh terraform_1.6.0_linux_amd64.zip
-      - unzip -o terraform_1.6.0_linux_amd64.zip
-      - mv terraform /usr/local/bin/
-      - terraform --version
-
   pre_build:
     commands:
-      - echo "Validating Terraform..."
+      - echo "Intializing Terraform..."
       - cd terraform
       - terraform init 
-      - terraform validate
-      - cd ..
-
+      
   build:
     commands:
       - echo "Deploying infrastructure..."
       - cd terraform
-      - terraform init
-      - terraform apply -auto-approve
+      - terraform apply -auto-approve || { echo "Terraform apply failed!"; exit 1; }
       - SCRIPTS_BUCKET=$(terraform output -raw scripts_bucket)
       - GLUE_JOB_NAME=$(terraform output -raw glue_job_name)
       - cd ..
